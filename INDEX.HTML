@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Indian Number to Words with Copy & WhatsApp</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fafb;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 0;
+    margin: 0;
+  }
+  .container {
+    background: white;
+    padding: 2rem 3rem;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    border-radius: 12px;
+    width: 380px;
+  }
+  h1 {
+    margin-bottom: 1.2rem;
+    color: #3b3b98;
+    text-align: center;
+  }
+  label {
+    font-weight: 600;
+    font-size: 1rem;
+    display: block;
+    margin: 0.4rem 0 0.8rem;
+    color: #444;
+  }
+  input[type="text"] {
+    width: 100%;
+    font-size: 1.25rem;
+    padding: 0.6rem 1rem;
+    border: 2px solid #3b3b98;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.25s ease;
+  }
+  input[type="text"]:focus {
+    border-color: #ff4757;
+  }
+  .output {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    color: #333;
+    min-height: 2rem;
+    background: #f4f6f8;
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+  textarea {
+    width: 100%;
+    height: 100px;
+    margin-top: 1.2rem;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: none;
+    font-family: inherit;
+  }
+  button {
+    background-color: #25D366; /* WhatsApp green */
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    margin-top: 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background-color: #1ebe57;
+  }
+  .message-box {
+    margin-top: 1.5rem;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Amount in Words</h1>
+    <label for="numberInput">Type Number:</label>
+    <input type="text" id="numberInput" placeholder="e.g. 1,50,000" />
+    
+    <div class="output" id="output"></div>
+
+    <div class="message-box">
+      <label for="message">WhatsApp/Tax Message:</label>
+      <textarea id="message" readonly></textarea>
+      <button id="copyBtn">Copy Message</button>
+    </div>
+  </div>
+
+<script>
+function formatIndianNumber(x) {
+  x = x.replace(/,/g, '');
+  let lastThree = x.substring(x.length - 3);
+  let otherNumbers = x.substring(0, x.length - 3);
+  if(otherNumbers !== '') {
+    lastThree = ',' + lastThree;
+  }
+  return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+}
+
+function inWords(num) {
+  var a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 
+           'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+  var b = ['', '', 'twenty ', 'thirty ', 'forty ', 'fifty ', 'sixty ', 'seventy ', 'eighty ', 'ninety '];
+
+  if ((num = num.toString()).length > 9) return 'overflow';
+
+  let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+  if (!n) return '';
+
+  let str = '';
+  str += (Number(n[1]) !== 0) ? (a[Number(n[1])] || b[Math.floor(Number(n[1]) / 10)] + a[Number(n[1]) % 10]) + 'crore ' : '';
+  str += (Number(n[2]) !== 0) ? (a[Number(n[2])] || b[Math.floor(Number(n[2]) / 10)] + a[Number(n[2]) % 10]) + 'lakh ' : '';
+  str += (Number(n[3]) !== 0) ? (a[Number(n[3])] || b[Math.floor(Number(n[3]) / 10)] + a[Number(n[3]) % 10]) + 'thousand ' : '';
+  str += (Number(n[4]) !== 0) ? (a[Number(n[4])] + 'hundred ') : '';
+  str += (Number(n[5]) !== 0) ? ((str !== '') ? 'and ' : '') + (a[Number(n[5])] || b[Math.floor(Number(n[5]) / 10)] + a[Number(n[5]) % 10]) : '';
+
+  return str.trim();
+}
+
+const input = document.getElementById('numberInput');
+const output = document.getElementById('output');
+const messageBox = document.getElementById('message');
+const copyBtn = document.getElementById('copyBtn');
+
+input.addEventListener('input', e => {
+  let val = e.target.value;
+
+  // Remove non-digit chars
+  val = val.replace(/[^\d]/g, '');
+
+  // Limit to 9 digits
+  if (val.length > 9) val = val.slice(0,9);
+
+  // Format Indian commas
+  const formatted = formatIndianNumber(val);
+  input.value = formatted;
+
+  const number = parseInt(val, 10);
+  if (isNaN(number) || number === 0) {
+    output.textContent = number === 0 ? 'Rupees Zero Only' : '';
+    messageBox.value = '';
+    return;
+  }
+
+  if (val.length > 9) {
+    output.textContent = 'Overflow: Enter number up to 9 digits';
+    messageBox.value = '';
+    return;
+  }
+
+  const words = inWords(number);
+  const finalWords = words ? 'Rupees ' + words + 'Only' : '';
+  output.textContent = finalWords;
+  messageBox.value = finalWords;
+});
+
+copyBtn.addEventListener('click', () => {
+  messageBox.select();
+  messageBox.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(messageBox.value).then(() => {
+    alert('Message copied to clipboard!');
+  }).catch(() => {
+    alert('Failed to copy message.');
+  });
+});
+</script>
+</body>
+</html>
